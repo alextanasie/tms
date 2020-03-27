@@ -1,0 +1,11 @@
+GET http://localhost:3001/api/v1/timecard
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZXhAYWxleC5jb20iLCJpYXQiOjE1ODUwNDU0NjN9.wCSti0lIq3umdfuNacyzPYoKsAT1r9lKy_pR3aLe-gM
+###
+
+POST http://localhost:3001/api/v1/user/login
+Content-Type: application/json
+
+{
+	"email": "alex@alex.com",
+	"password": "password11"
+}
