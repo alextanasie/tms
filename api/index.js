@@ -14,7 +14,11 @@ mongoose.connect(process.env.DB_CONNECT, { useNewUrlParser: true }, () => consol
 
 // middleware
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    exposedHeaders: ["auth-token"],
+  })
+);
 
 //route middleware
 app.use("/api/v1/users", usersRoute);
