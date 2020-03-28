@@ -43,7 +43,7 @@ const getAll = async (req, res) => {
 
     res.status(200).send(allTimecards);
   } catch (e) {
-    console.error(`Error when getting all users: ${e}`);
+    console.error(`Error when getting all timecards: ${e}`);
   }
 };
 
