@@ -38,10 +38,13 @@ const loginValidation = data => {
 
 const userInfoValidation = data => {
   const schema = Joi.object({
-    name: Joi.string().min(3),
+    name: Joi.string()
+      .min(3)
+      .required(),
     email: Joi.string()
       .min(6)
-      .email(),
+      .email()
+      .required(),
     role: Joi.number()
       .min(1)
       .max(3),

@@ -5,7 +5,7 @@ const { isAdminRequest } = require("../helpers/user-helpers");
 const { registerValidation, loginValidation, userInfoValidation } = require("../helpers/userValidation");
 
 const register = async (req, res) => {
-  console.log("/register");
+  console.log("POST /users");
   //validate request
   const { error } = registerValidation(req.body);
   if (error) {
@@ -129,7 +129,10 @@ const update = async (req, res) => {
 const getAll = async (req, res) => {
   console.log(`GET /users`, req.user);
   try {
-    const allUsers = await User.find().select("-password -__v");
+    // Managers shouldn't get access to admins in the list
+    const dbFilter = isAdminRequest(req.user) ? {} : { role: { $lte: 2 } };
+    // TODO: exclude pass in mongoose model with "select: false" for the field
+    const allUsers = await User.find(dbFilter).select("-password -__v");
 
     res.status(200).send(allUsers);
   } catch (e) {
