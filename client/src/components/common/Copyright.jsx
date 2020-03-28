@@ -1,9 +1,7 @@
 import React from "react";
 import { Typography, Link, Box } from "@material-ui/core";
 
-interface Props {}
-
-export const Copyright: React.FC<Props> = () => {
+export const Copyright = () => {
   return (
     <Box mt={5}>
       <Typography variant="body2" color="textSecondary" align="center">

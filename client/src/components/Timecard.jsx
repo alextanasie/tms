@@ -2,38 +2,19 @@ import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { RouteComponentProps } from "react-router-dom";
 import { convertMsToDate } from "../helpers/date";
-import { TextField, Button, Icon } from "@material-ui/core";
+import { TextField, Button, Icon, Grid, Typography } from "@material-ui/core";
 import MaterialTable, { Column } from "material-table";
 import { format, getTime, subDays } from "date-fns";
-import { Container } from "@material-ui/core";
 import { Wrapper } from "./common/Wrapper";
-import { AppHeader } from "./common/AppHeader";
 import ApiService from "../services/api.service";
 import { handleUiError } from "../helpers/helpers";
-// interface Timecard {
-//   id: string;
-//   task: string;
-//   date: string;
-//   duration: string;
-//   notes: string;
-// }
-
-// interface TableState {
-//   columns: Array<Column<Timecard>>;
-//   // data: Timecard[];
-// }
-
-// interface Props extends RouteComponentProps {}
 
 const useStyles = makeStyles(theme => ({
-  table: {
-    minWidth: 650,
-  },
   root: {
-    "& > *": {
-      margin: theme.spacing(1),
-      width: "25ch",
-    },
+    flexGrow: 1,
+  },
+  grid: {
+    marginTop: "50px",
   },
 }));
 
@@ -45,33 +26,21 @@ const COLUMNS = [
 ];
 
 export const Timecard = () => {
+  let allTimecards = [];
   const DEFAULT_WORK_DAY = 8;
   const classes = useStyles();
-  // const [columns, setColumns] = React.useState<TableState>([
-  //   { title: "Task", field: "task" },
-  //   { title: "Date", field: "date", defaultSort: "desc" },
-  //   { title: "Duration", field: "duration" },
-  //   { title: "Notes", field: "notes" },
-  // ]);
   const [timecards, setTimecards] = React.useState([]);
   const [preferredDuration, setPreferredDuration] = React.useState(DEFAULT_WORK_DAY);
   const [startDate, setStartDate] = React.useState(format(subDays(Date.now(), 7), "yyyy-MM-dd"));
   const [endDate, setEndDate] = React.useState(format(Date.now(), "yyyy-MM-dd"));
   // const useMountEffect = fn => React.useEffect(fn, []);
-
-  // const getTimecards = async () => {
-  //   ApiService.getTimecards().then(res => {
-  //     console.log("ia", res.data);
-  //     setTimecards(res.data);
-  //   });
-  // };
-
   // useMountEffect(getTimecards);
 
   React.useEffect(() => {
     function fetchTimecards() {
       ApiService.getTimecards().then(res => {
-        setTimecards(res.data);
+        allTimecards = res.data;
+        setTimecards(allTimecards);
       });
     }
     fetchTimecards();
@@ -85,17 +54,17 @@ export const Timecard = () => {
     console.log(e.target);
   };
 
-  // const filterByDate = (e) => {
-  //   e.preventDefault();
-  //   console.log("filtering by date", startDate, endDate);
+  const filterByDate = e => {
+    e.preventDefault();
+    console.log("filtering by date", startDate, endDate);
 
-  //   const filteredRows = ALL_TASKS.filter(e => {
-  //     return +e.date > +startDate && +e.date < +endDate;
-  //   });
-  //   setState(prevState => {
-  //     return { ...prevState, data: filteredRows };
-  //   });
-  // };
+    const filteredRows = allTimecards.filter(e => {
+      return +e.date > +startDate && +e.date < +endDate;
+    });
+    setTimecards(prevState => {
+      return filteredRows;
+    });
+  };
 
   const onStartDateChange = e => {
     console.log("start", e.target.value);
@@ -127,6 +96,12 @@ export const Timecard = () => {
 
   const deleteTimecardOnServer = id => {
     return ApiService.deleteTimecard(id);
+  };
+
+  const submitFilters = e => {
+    e.preventDefault();
+    filterByDate();
+    submitMinDailyWork();
   };
 
   const onRowAdd = newData => {
@@ -187,78 +162,91 @@ export const Timecard = () => {
     });
   };
 
-  const dateFiter = () => {
+  const styles = {
+    fullwidth: {
+      width: "100%",
+    },
+    margins: {
+      marginBottom: "10px",
+    },
+  };
+
+  const getTopFilters = () => {
     return (
-      <form noValidate onSubmit={() => {}}>
-        <TextField
-          id="startDate"
-          label="Start Date"
-          type="date"
-          defaultValue={startDate}
-          name="startDate"
-          onChange={onStartDateChange}
-          InputLabelProps={{
-            shrink: true,
-          }}
-        />
-        <TextField
-          id="endDate"
-          label="End Date"
-          type="date"
-          defaultValue={endDate}
-          name="endDate"
-          onChange={onEndDateChange}
-          InputLabelProps={{
-            shrink: true,
-          }}
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          disableElevation
-          type="submit"
-          size="medium"
-          endIcon={<Icon>send</Icon>}
-        >
-          Filter
-        </Button>
-      </form>
+      <Grid container item xs={12} spacing={3} style={styles.margins} alignItems="flex-end">
+        <Grid item xs={3}>
+          <TextField
+            size="small"
+            id="startDate"
+            label="Start Date"
+            type="date"
+            defaultValue={startDate}
+            name="startDate"
+            onChange={onStartDateChange}
+            style={styles.fullwidth}
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+        </Grid>
+        <Grid item xs={3}>
+          <TextField
+            size="small"
+            id="endDate"
+            label="End Date"
+            type="date"
+            defaultValue={endDate}
+            name="endDate"
+            onChange={onEndDateChange}
+            style={styles.fullwidth}
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+        </Grid>
+        <Grid item xs={3}>
+          <TextField
+            size="small"
+            id="outlined-basic"
+            label="Preferred daily working hrs"
+            value={preferredDuration}
+            type="string"
+            onChange={dailyDurationChange}
+            style={styles.fullwidth}
+          />
+        </Grid>
+        <Grid item xs={3}>
+          <Button
+            variant="contained"
+            color="primary"
+            disableElevation
+            type="submit"
+            endIcon={<Icon>search</Icon>}
+            style={styles.fullwidth}
+          >
+            Filter
+          </Button>
+        </Grid>
+      </Grid>
     );
   };
 
   return (
     // https://reacttraining.com/react-router/web/api/Route/path-string-string
-    <Container maxWidth="lg">
-      <AppHeader />
-      {dateFiter()}
-      <form className={classes.root} noValidate autoComplete="off" onSubmit={submitMinDailyWork}>
-        <TextField
-          id="outlined-basic"
-          label="Preferred daily working hrs"
-          value={preferredDuration}
-          type="string"
-          variant="outlined"
-          size="small"
-          onChange={dailyDurationChange}
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          disableElevation
-          type="submit"
-          size="medium"
-          endIcon={<Icon>send</Icon>}
-        >
-          Save
-        </Button>
-      </form>
+    <Wrapper
+      title="Timecards"
+      description="From here, you may view, create, edit and delete all of your timecards. Use the controls from below to filter
+    your data."
+    >
+      {getTopFilters()}
       <MaterialTable
         columns={COLUMNS}
         data={timecards}
         title="Demo Title"
         options={{
           rowStyle: rowData => ({
-            backgroundColor: rowData.duration < preferredDuration ? "red" : "green",
+            backgroundColor:
+              rowData.duration < preferredDuration ? "rgba(181, 60, 55, 0.30)" : "rgba(151, 180, 154, 0.58)",
           }),
           exportButton: true,
         }}
@@ -269,6 +257,6 @@ export const Timecard = () => {
           onRowDelete: oldData => onRowDelete(oldData),
         }}
       />
-    </Container>
+    </Wrapper>
   );
 };

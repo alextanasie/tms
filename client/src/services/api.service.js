@@ -12,6 +12,8 @@ const setUserInfo = headers => {
 };
 
 const unsetUserInfo = () => {
+  token = "";
+  refreshToken = "";
   localStorage.removeItem("token");
   localStorage.removeItem("refreshToken");
 };
@@ -28,10 +30,8 @@ class ApiService {
     });
   };
 
-  // TODO: implement logout
   logOut() {
     unsetUserInfo();
-    return axios.post(constants.LOGOUT_PATH, {}, {});
   }
 
   createUser(userObj) {

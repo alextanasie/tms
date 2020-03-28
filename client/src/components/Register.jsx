@@ -35,9 +35,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-interface Props extends RouteComponentProps {}
-
-export const Register: React.FC<Props> = ({ history }) => {
+export const Register = ({ history }) => {
   const classes = useStyles();
 
   const goToLogin = () => {

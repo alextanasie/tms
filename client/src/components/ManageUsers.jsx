@@ -6,7 +6,6 @@ import { TextField, Button, Icon } from "@material-ui/core";
 import MaterialTable, { Column } from "material-table";
 import { format, getTime, subDays } from "date-fns";
 import { Container } from "@material-ui/core";
-import { AppHeader } from "./common/AppHeader";
 import ApiService from "../services/api.service";
 import { handleUiError } from "../helpers/helpers";
 import Dialog from "@material-ui/core/Dialog";
@@ -15,6 +14,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Slide from "@material-ui/core/Slide";
+import { Wrapper } from "./common/Wrapper";
 
 // interface Row {
 //   id: string;
@@ -175,12 +175,14 @@ export const ManageUsers = () => {
   };
 
   return (
-    <Container maxWidth="lg">
-      <AppHeader />
+    <Wrapper
+      title="Manage users"
+      description="Create, edit and delete users. When creating a new user, the default password assigned will be: password1"
+    >
       <MaterialTable
         columns={columns}
         data={users}
-        title="Manage Users"
+        title="Users list"
         options={{
           exportButton: true,
         }}
@@ -194,6 +196,6 @@ export const ManageUsers = () => {
         }}
       />
       {getDialog()}
-    </Container>
+    </Wrapper>
   );
 };
