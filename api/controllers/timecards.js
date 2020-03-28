@@ -24,8 +24,6 @@ const create = async (req, res) => {
     const timecard = new Timecard(timecardPayload);
     timecard.ownerId = req.user.id;
 
-    console.log("timecardddd", timecard, req.user);
-
     const savedTimecard = await timecard.save();
     res.status(201).send({ id: timecard.id });
     console.log(`Saved timecard ${savedTimecard}`);

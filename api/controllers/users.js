@@ -61,12 +61,12 @@ const login = async (req, res) => {
   const user = await User.findOne({ email: req.body.email });
   if (!user) {
     console.error("login: email does not exist");
-    return res.status(400).send("Email or password are not correct");
+    return res.status(401).send("Email or password are not correct");
   }
 
   //check password
   const validPass = await bcrypt.compare(req.body.password, user.password);
-  if (!validPass) return res.status(400).send("Email or password are not correct");
+  if (!validPass) return res.status(401).send("Email or password are not correct");
 
   //Create & assign token
   const userInfo = {
