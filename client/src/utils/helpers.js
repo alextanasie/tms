@@ -1,5 +1,6 @@
 import decode from "jwt-decode";
 import constants from "../constants";
+import { format } from "date-fns";
 
 const handleUiError = (err, reject) => {
   const errMsg = err && err.response && err.response.data;
@@ -32,9 +33,39 @@ const isUserAuthenticated = () => {
   return true;
 };
 
+const getRole = () => {
+  return localStorage.getItem("userRole");
+};
+
 const isUserAllowed = path => {
-  const role = localStorage.getItem("userRole");
+  const role = getRole();
   return constants.ALLOWED_ROUTES[role].indexOf(path) !== -1;
 };
 
-export { handleUiError, isUserAllowed, isUserAuthenticated };
+const isUserAdmin = () => {
+  return getRole() === "3";
+};
+
+const formatDateFromMsForAllTimecards = timecards => {
+  const formattedRes = timecards.map(tc => {
+    tc.rawDate = +tc.date;
+    tc.date = formatDateForOneTimecard(tc.rawDate);
+    return tc;
+  });
+
+  console.log("f", formattedRes);
+  return formattedRes;
+};
+
+const formatDateForOneTimecard = dt => {
+  return format(new Date(+dt), "dd LLLL yyyy");
+};
+
+export {
+  handleUiError,
+  isUserAllowed,
+  isUserAuthenticated,
+  formatDateFromMsForAllTimecards,
+  formatDateForOneTimecard,
+  isUserAdmin,
+};

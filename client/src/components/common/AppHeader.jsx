@@ -1,11 +1,11 @@
 import React from "react";
 import { useHistory, Link } from "react-router-dom";
-import { fade, makeStyles, Theme, createStyles } from "@material-ui/core/styles";
+import { makeStyles, createStyles } from "@material-ui/core/styles";
 import { Menu, Toolbar, Container, AppBar, IconButton, Typography, MenuItem } from "@material-ui/core";
-import { AccountCircle, TableChart, PeopleAlt, ExitToApp } from "@material-ui/icons";
+import { TableChart, PeopleAlt, ExitToApp } from "@material-ui/icons";
 import MoreIcon from "@material-ui/icons/MoreVert";
 import apiService from "../../services/api.service";
-import { isUserAllowed } from "../../helpers/helpers";
+import { isUserAllowed } from "../../utils/helpers";
 
 const useStyles = makeStyles(theme =>
   createStyles({
@@ -46,7 +46,6 @@ const headerLinkStyle = {
 export const AppHeader = () => {
   const classes = useStyles();
   const history = useHistory();
-  const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);

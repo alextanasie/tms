@@ -1,58 +1,92 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { RouteComponentProps } from "react-router-dom";
-import { convertMsToDate } from "../helpers/date";
-import { TextField, Button, Icon } from "@material-ui/core";
-import MaterialTable, { Column } from "material-table";
-import { format, getTime, subDays } from "date-fns";
-import { Container } from "@material-ui/core";
+import MaterialTable from "material-table";
 import ApiService from "../services/api.service";
-import { handleUiError } from "../helpers/helpers";
-import Dialog from "@material-ui/core/Dialog";
-import DialogActions from "@material-ui/core/DialogActions";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import Slide from "@material-ui/core/Slide";
+import { handleUiError, isUserAdmin } from "../utils/helpers";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Avatar,
+  FormControl,
+  Select,
+  MenuItem,
+  FormHelperText,
+} from "@material-ui/core";
 import { Wrapper } from "./common/Wrapper";
 
-// interface Row {
-//   id: string;
-//   username: string;
-//   firstName: string;
-//   lastName: string;
-// }
-
-// interface TableState {
-//   columns: Array<Column<Row>>;
-//   data: Row[];
-// }
-
-const useStyles = makeStyles(theme => ({
-  table: {
-    minWidth: 650,
+const styles = {
+  manager: {
+    backgroundColor: "black",
   },
-  root: {
-    "& > *": {
-      margin: theme.spacing(1),
-      width: "25ch",
-    },
-    "& > * + *": {
-      marginTop: theme.spacing(2),
-    },
+  admin: {
+    backgroundColor: "rgba(255, 0, 0, 0.65)",
   },
-}));
+  roleSelect: {
+    fontSize: "13px",
+  },
+};
 
 const columns = [
   { title: "Name", field: "name", defaultSort: "asc" },
   { title: "Email", field: "email" },
-  { title: "Join date", field: "date" },
+  { title: "Join date", field: "date", type: "date" },
+  {
+    title: "Role",
+    field: "role",
+    render: rowData => columnRender(rowData),
+    editComponent: props => editComponent(props),
+  },
 ];
+// editComponent: props => <input type="text" value={props.value} onChange={e => props.onChange(e.target.value)} />,
+
+const columnRender = rowData => {
+  if (rowData.role === 1) {
+    return (
+      <Avatar variant="square" title="Regular user">
+        U
+      </Avatar>
+    );
+  }
+  if (rowData.role === 2) {
+    return (
+      <Avatar variant="rounded" style={styles.manager} title="User Manager">
+        M
+      </Avatar>
+    );
+  }
+  if (rowData.role === 3) {
+    return (
+      <Avatar variant="circle" style={styles.admin} title="Admin">
+        A
+      </Avatar>
+    );
+  }
+};
+
+const editComponent = props => {
+  return (
+    <FormControl>
+      <Select
+        labelId="demo-simple-select-label"
+        id="demo-simple-select"
+        value={props.value}
+        onChange={e => props.onChange(e.target.value)}
+        size="small"
+        style={styles.roleSelect}
+      >
+        <MenuItem value={1}>User</MenuItem>
+        <MenuItem value={2}>Manager</MenuItem>
+        {isUserAdmin() ? <MenuItem value={3}>Admin</MenuItem> : false}
+      </Select>
+    </FormControl>
+  );
+};
 
 export const ManageUsers = () => {
-  const classes = useStyles();
   const [users, setUsers] = React.useState([]);
-  const [displayWarning, setDisplayWarning] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
 
   React.useEffect(() => {
@@ -112,9 +146,9 @@ export const ManageUsers = () => {
   const onRowUpdate = (newData, oldData) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const { name, email, _id } = newData;
+        const { name, email, _id, role } = newData;
         // console
-        updateUserOnServer({ name, email }, _id)
+        updateUserOnServer({ name, email, role }, _id)
           .then(res => {
             resolve();
             if (oldData) {
@@ -190,6 +224,8 @@ export const ManageUsers = () => {
           body: { editRow: { deleteText: "Are you sure you want to remove this user?" } },
         }}
         editable={{
+          isEditable: rowData => isUserAdmin() || rowData.role === 1, // only regular users are editable, unless user is admin
+          isDeletable: rowData => isUserAdmin() || rowData.role === 1, // only regular users are deletable, unless user is admin
           onRowAdd: newData => onRowAdd(newData),
           onRowUpdate: (newData, oldData) => onRowUpdate(newData, oldData),
           onRowDelete: oldData => onRowDelete(oldData),

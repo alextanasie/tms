@@ -1,19 +1,27 @@
 import React from "react";
-import Avatar from "@material-ui/core/Avatar";
-import Button from "@material-ui/core/Button";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import TextField from "@material-ui/core/TextField";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
-import Link from "@material-ui/core/Link";
-import Grid from "@material-ui/core/Grid";
-import Box from "@material-ui/core/Box";
+import {
+  DialogTitle,
+  DialogContentText,
+  DialogContent,
+  DialogActions,
+  Dialog,
+  Container,
+  Typography,
+  Avatar,
+  Button,
+  CssBaseline,
+  TextField,
+  FormControlLabel,
+  Checkbox,
+  Link,
+  Grid,
+  Box,
+} from "@material-ui/core";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
-import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
-import Container from "@material-ui/core/Container";
-import { RouteComponentProps } from "react-router-dom";
 import { Copyright } from "./common/Copyright";
+import ApiService from "../services/api.service";
+import Alert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -33,13 +41,75 @@ const useStyles = makeStyles(theme => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
+  alert: {
+    width: "100%",
+    marginTop: theme.spacing(1),
+  },
 }));
 
 export const Register = ({ history }) => {
   const classes = useStyles();
+  const [firstName, setFirstName] = React.useState("");
+  const [lastName, setLastName] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [isErr, setIsErr] = React.useState("");
 
   const goToLogin = () => {
     history.push("/login");
+  };
+
+  const register = e => {
+    e.preventDefault();
+    const name = `${firstName} ${lastName}`;
+
+    return ApiService.createUser({ name, email, password })
+      .then(res => {
+        console.log(res);
+        openDialog();
+      })
+      .catch(err => {
+        console.error(err.response.data);
+        setIsErr(err.response.data);
+      });
+  };
+
+  const openDialog = () => {
+    setDialogOpen(true);
+  };
+
+  const closeDialog = () => {
+    setDialogOpen(false);
+  };
+
+  const onClickOk = () => {
+    closeDialog();
+    history.push("/login");
+  };
+
+  const getDialog = () => {
+    return (
+      <Dialog
+        open={dialogOpen}
+        onClose={closeDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Success!"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            <strong>{firstName}</strong>, your account has been successfully created! Your username is{" "}
+            <strong>{email}</strong>. Now please go to the login page and authenticate.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClickOk} color="primary" variant="contained" autoFocus>
+            Go to Login page
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
   };
 
   return (
@@ -52,7 +122,14 @@ export const Register = ({ history }) => {
         <Typography component="h1" variant="h5">
           Sign up
         </Typography>
-        <form className={classes.form} noValidate>
+        {isErr ? (
+          <Alert severity="error" className={classes.alert}>
+            {isErr}
+          </Alert>
+        ) : (
+          false
+        )}
+        <form className={classes.form} noValidate onSubmit={register}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -64,6 +141,7 @@ export const Register = ({ history }) => {
                 id="firstName"
                 label="First Name"
                 autoFocus
+                onChange={e => setFirstName(e.target.value)}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -75,6 +153,7 @@ export const Register = ({ history }) => {
                 label="Last Name"
                 name="lastName"
                 autoComplete="lname"
+                onChange={e => setLastName(e.target.value)}
               />
             </Grid>
             <Grid item xs={12}>
@@ -86,6 +165,7 @@ export const Register = ({ history }) => {
                 label="Email Address"
                 name="email"
                 autoComplete="email"
+                onChange={e => setEmail(e.target.value)}
               />
             </Grid>
             <Grid item xs={12}>
@@ -98,6 +178,7 @@ export const Register = ({ history }) => {
                 type="password"
                 id="password"
                 autoComplete="current-password"
+                onChange={e => setPassword(e.target.value)}
               />
             </Grid>
             <Grid item xs={12}>
@@ -122,6 +203,7 @@ export const Register = ({ history }) => {
       <Box mt={5}>
         <Copyright />
       </Box>
+      {getDialog()}
     </Container>
   );
 };

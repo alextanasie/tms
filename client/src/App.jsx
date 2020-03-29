@@ -5,7 +5,7 @@ import { Timecard } from "./components/Timecard";
 import { ManageUsers } from "./components/ManageUsers";
 import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
 import "./App.css";
-import { isUserAllowed, isUserAuthenticated } from "./helpers/helpers";
+import { isUserAllowed, isUserAuthenticated } from "./utils/helpers";
 
 export default function App() {
   return (

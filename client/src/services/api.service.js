@@ -23,6 +23,7 @@ const getConfig = () => {
 };
 
 class ApiService {
+  allTimecards = undefined;
   // TODO: set headers config on axios instance
   login = credentials => {
     return axios.post(constants.LOGIN_PATH, credentials).then(res => {
@@ -34,8 +35,8 @@ class ApiService {
     unsetUserInfo();
   }
 
-  createUser(userObj) {
-    return axios.post(constants.USERS_PATH, userObj, getConfig());
+  createUser({ name, email, password }) {
+    return axios.post(constants.USERS_PATH, { name, email, password }, getConfig());
   }
 
   getUsers() {
@@ -51,10 +52,18 @@ class ApiService {
   }
 
   getTimecards() {
-    return axios.get(constants.TIMECARDS_PATH, getConfig());
+    return axios.get(constants.TIMECARDS_PATH, getConfig()).then(res => {
+      this.allTimecards = res.data;
+      return res.data;
+    });
+  }
+
+  getStoredTimecards() {
+    return this.allTimecards;
   }
 
   createTimecard(timecard) {
+    console.log("send", timecard);
     return axios.post(constants.TIMECARDS_PATH, timecard, getConfig());
   }
 
