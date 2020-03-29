@@ -19,10 +19,8 @@ const timecardSchema = new mongoose.Schema({
     max: 255,
   },
   duration: {
-    type: String,
+    type: Number,
     required: true,
-    min: 1,
-    max: 4,
   },
   notes: {
     type: String,
