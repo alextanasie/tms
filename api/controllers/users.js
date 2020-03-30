@@ -1,8 +1,7 @@
 const User = require("../model/User");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const { isAdminRequest } = require("../helpers/user-helpers");
-const { registerValidation, loginValidation, userInfoValidation } = require("../helpers/userValidation");
+const { registerValidation, userInfoValidation } = require("../helpers/userValidation");
 
 const register = async (req, res) => {
   console.log("POST /users");
@@ -40,7 +39,7 @@ const register = async (req, res) => {
 
   try {
     const savedUser = await user.save();
-    res.status(201).send({ user: user.id });
+    res.status(201).send({ name: user.name, email: user.email, date: user.date, role: user.role });
     console.log(`Saved user ${savedUser}`);
   } catch (err) {
     res.status(400).send(err);
