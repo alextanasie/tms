@@ -1,11 +1,31 @@
-GET http://localhost:3001/api/v1/timecard
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZXhAYWxleC5jb20iLCJpYXQiOjE1ODUwNDU0NjN9.wCSti0lIq3umdfuNacyzPYoKsAT1r9lKy_pR3aLe-gM
-###
-
-POST http://localhost:3001/api/v1/user/login
+POST http://localhost:3001/auth/login
 Content-Type: application/json
 
 {
-	"email": "alex@alex.com",
-	"password": "password11"
+	"email": "a@a.com",
+	"password": "password1"
+}
+
+###
+
+GET http://localhost:3001/api/v1/timecards
+x-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFAYS5jb20iLCJyb2xlIjozLCJpZCI6IjVlN2M2NmY4YjAyNWE4MGUxYmQxMDc0ZSIsImlhdCI6MTU4NTU1OTYxOCwiZXhwIjoxNTg1NTU5NjQzfQ.TSsvoETXL_Mz9epB3UBwUOivgv7zeSmy4p93Cb5CIJ8
+###
+
+
+###
+POST http://localhost:3001/auth/token
+Content-Type: application/json
+
+{
+	"refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFAYS5jb20iLCJyb2xlIjozLCJpZCI6IjVlN2M2NmY4YjAyNWE4MGUxYmQxMDc0ZSIsImlhdCI6MTU4NTU1OTYxOH0.uCtCABkAkCnE7xZi3gP2-361s-bZqyqhNt2XSb4EK40"
+}
+
+###
+
+DELETE http://localhost:3001/auth/logout
+Content-Type: application/json
+
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFAYS5jb20iLCJyb2xlIjozLCJpZCI6IjVlN2M2NmY4YjAyNWE4MGUxYmQxMDc0ZSIsImlhdCI6MTU4NTU1OTYxOH0.uCtCABkAkCnE7xZi3gP2-361s-bZqyqhNt2XSb4EK40"
 }

@@ -7,6 +7,7 @@ const app = express();
 //routes
 const usersRoute = require("./routes/users");
 const timecardsRoute = require("./routes/timecards");
+const authRoute = require("./routes/auth");
 dotenv.config();
 
 // DB connect
@@ -23,5 +24,6 @@ app.use(
 //route middleware
 app.use("/api/v1/users", usersRoute);
 app.use("/api/v1/timecards", timecardsRoute);
+app.use("/auth", authRoute);
 
 app.listen(3001, () => console.log("SERVER RUNNING"));

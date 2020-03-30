@@ -1,11 +1,10 @@
 const router = require("express").Router();
-const auth = require("../middleware/auth");
+const { isAuthenticated } = require("../middleware/auth");
 const timecardsController = require("../controllers/timecards.js");
-// const { restrictManagers } = require("../middleware/restrict");
 
-router.get("/", auth, timecardsController.getAll);
-router.post("/", auth, timecardsController.create);
-router.delete("/:id", auth, timecardsController.remove);
-router.put("/:id", auth, timecardsController.update);
+router.get("/", isAuthenticated, timecardsController.getAll);
+router.post("/", isAuthenticated, timecardsController.create);
+router.delete("/:id", isAuthenticated, timecardsController.remove);
+router.put("/:id", isAuthenticated, timecardsController.update);
 
 module.exports = router;

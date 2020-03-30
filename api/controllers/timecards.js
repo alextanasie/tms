@@ -56,8 +56,8 @@ const remove = async (req, res) => {
         filter.ownerId = req.user.id;
       }
 
-      const timecardToBeDeleted = await Timecard.findOneAndDelete(filter);
-      res.status(200).send(`Timecard id ${timecardToBeDeleted.id} has been successfully deleted`);
+      await Timecard.findOneAndDelete(filter);
+      res.sendStatus(204);
     } else {
       res.status(400).send("No ID received");
     }
