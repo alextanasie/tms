@@ -54,7 +54,6 @@ export const Login = ({ history, location, match }) => {
 
   const login = e => {
     e.preventDefault();
-    // console.log(email, pass);
     const credentials = { email, password: pass };
     ApiService.login(credentials)
       .then(res => {

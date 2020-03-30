@@ -1,6 +1,6 @@
-import decode from "jwt-decode";
 import constants from "../constants";
 import { format } from "date-fns";
+import networkInterface from "../services/network-interface";
 
 const handleUiError = (err, reject) => {
   const errMsg = err && err.response && err.response.data;
@@ -11,54 +11,55 @@ const handleUiError = (err, reject) => {
   return reject(err.response.data);
 };
 
-const isUserAuthenticated = () => {
-  const token = localStorage.getItem("token");
-  const refreshToken = localStorage.getItem("refreshToken");
-  //TODO add functionality for refreshToken
-  if (!token || !refreshToken) {
+const isUserAuthenticated = async () => {
+  const accessToken = networkInterface.getAccessToken();
+  if (!accessToken) {
     return false;
   }
 
-  try {
-    // const { exp } = decode(refreshToken);
-    const { exp, role } = decode(token);
-    localStorage.setItem("userRole", role);
-    if (exp < new Date().getTime() / 1000) {
-      return false;
-    }
-  } catch (e) {
-    return false;
-  }
+  // it would be best to check for expiration here as well
+  // Although the user doesn't get data access if token expired, the user shouldn't see the UI
 
   return true;
 };
 
 const getRole = () => {
-  return localStorage.getItem("userRole");
+  return networkInterface.getUserRole();
 };
 
 const isUserAllowed = path => {
   const role = getRole();
-  return constants.ALLOWED_ROUTES[role].indexOf(path) !== -1;
+  const allowed = constants.ALLOWED_ROUTES[role];
+  return allowed && allowed.indexOf(path) !== -1;
 };
 
 const isUserAdmin = () => {
-  return getRole() === "3";
+  console.log("is", getRole());
+  return getRole().toString() === "3";
 };
 
 const formatDateFromMsForAllTimecards = timecards => {
+  if (!timecards) return [];
   const formattedRes = timecards.map(tc => {
     tc.rawDate = +tc.date;
-    tc.date = formatDateForOneTimecard(tc.rawDate);
+    tc.date = formatDateForOneEntity(tc.rawDate);
     return tc;
   });
 
-  console.log("f", formattedRes);
   return formattedRes;
 };
 
-const formatDateForOneTimecard = dt => {
+const formatDateForOneEntity = dt => {
   return format(new Date(+dt), "dd LLLL yyyy");
+};
+
+const mapTimecardOwners = (timecards, users) => {
+  const tcWithOwnerNames = timecards.map(t => {
+    let user = users.find(u => u._id === t.ownerId);
+    t.owner = user.email;
+    return t;
+  });
+  return tcWithOwnerNames;
 };
 
 export {
@@ -66,6 +67,7 @@ export {
   isUserAllowed,
   isUserAuthenticated,
   formatDateFromMsForAllTimecards,
-  formatDateForOneTimecard,
+  formatDateForOneEntity,
   isUserAdmin,
+  mapTimecardOwners,
 };
