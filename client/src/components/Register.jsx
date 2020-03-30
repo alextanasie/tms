@@ -66,7 +66,6 @@ export const Register = ({ history }) => {
 
     return ApiService.createUser({ name, email, password })
       .then(res => {
-        console.log(res);
         openDialog();
       })
       .catch(err => {

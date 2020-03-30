@@ -1,7 +1,8 @@
 import React from "react";
 import MaterialTable from "material-table";
 import ApiService from "../services/api.service";
-import { handleUiError, isUserAdmin } from "../utils/helpers";
+import { handleUiError, isUserAdmin, formatDateForOneEntity } from "../utils/helpers";
+import { getTime } from "date-fns";
 import {
   Button,
   Dialog,
@@ -13,7 +14,6 @@ import {
   FormControl,
   Select,
   MenuItem,
-  FormHelperText,
 } from "@material-ui/core";
 import { Wrapper } from "./common/Wrapper";
 
@@ -32,17 +32,16 @@ const styles = {
 const columns = [
   { title: "Name", field: "name", defaultSort: "asc" },
   { title: "Email", field: "email" },
-  { title: "Join date", field: "date", type: "date" },
+  { title: "Join date", field: "date", type: "date", editable: "never" },
   {
     title: "Role",
     field: "role",
-    render: rowData => columnRender(rowData),
+    render: rowData => roleColumnRender(rowData),
     editComponent: props => editComponent(props),
   },
 ];
-// editComponent: props => <input type="text" value={props.value} onChange={e => props.onChange(e.target.value)} />,
 
-const columnRender = rowData => {
+const roleColumnRender = rowData => {
   if (rowData.role === 1) {
     return (
       <Avatar variant="square" title="Regular user">
@@ -72,7 +71,7 @@ const editComponent = props => {
       <Select
         labelId="demo-simple-select-label"
         id="demo-simple-select"
-        value={props.value}
+        value={props.value || 1}
         onChange={e => props.onChange(e.target.value)}
         size="small"
         style={styles.roleSelect}
@@ -92,9 +91,7 @@ export const ManageUsers = () => {
   React.useEffect(() => {
     const getUsers = () => {
       return ApiService.getUsers().then(res => {
-        console.log("users", res);
-        // TODO: add envelope functionality to the API
-        setUsers(res.data);
+        setUsers(res);
       });
     };
 
@@ -126,8 +123,9 @@ export const ManageUsers = () => {
   const onRowAdd = newData => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        console.log(newData);
         const { name, email } = newData;
+        newData.role = 1;
+        newData.date = formatDateForOneEntity(getTime(new Date()).toString());
         sendUserToServer(name, email)
           .then(res => {
             resolve();
@@ -136,9 +134,9 @@ export const ManageUsers = () => {
               data.push(newData);
               return data;
             });
+            handleClickOpen();
           })
           .catch(e => handleUiError(e, reject));
-        handleClickOpen();
       }, 600);
     });
   };

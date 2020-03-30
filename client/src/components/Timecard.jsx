@@ -1,10 +1,16 @@
 import React from "react";
-import { TextField, Button, Icon, Grid } from "@material-ui/core";
+import { TextField, Grid } from "@material-ui/core";
 import MaterialTable from "material-table";
-import { format, getTime, subDays } from "date-fns";
+import { getTime, subDays } from "date-fns";
 import { Wrapper } from "./common/Wrapper";
 import ApiService from "../services/api.service";
-import { handleUiError, formatDateFromMsForAllTimecards, formatDateForOneTimecard } from "../utils/helpers";
+import {
+  handleUiError,
+  formatDateFromMsForAllTimecards,
+  formatDateForOneEntity,
+  isUserAdmin,
+  mapTimecardOwners,
+} from "../utils/helpers";
 import { MuiPickersUtilsProvider, DatePicker } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
 
@@ -17,35 +23,42 @@ const styles = {
   },
 };
 
-const COLUMNS = [
-  { title: "Task", field: "task" },
-  {
-    title: "Date",
-    field: "date",
-    defaultSort: "desc",
-    type: "date",
-    customSort: (a, b) => {
-      return a.rawDate - b.rawDate;
-    },
-  },
-  { title: "Duration (h)", field: "duration", type: "numeric" },
-  { title: "Notes", field: "notes" },
-];
-
 export const Timecard = () => {
   const [timecards, setTimecards] = React.useState([]);
   const [preferredDuration, setPreferredDuration] = React.useState(8);
   const [startDate, setStartDate] = React.useState(getTime(subDays(Date.now(), 7)));
   const [endDate, setEndDate] = React.useState(getTime(new Date()));
 
+  const tableColumns = [
+    { title: "Task", field: "task" },
+    {
+      title: "Date",
+      field: "date",
+      defaultSort: "desc",
+      type: "date",
+      customSort: (a, b) => {
+        return a.rawDate - b.rawDate;
+      },
+    },
+    { title: "Duration (h)", field: "duration", type: "numeric" },
+    { title: "Notes", field: "notes" },
+    { title: "Owner", field: "owner", hidden: !isUserAdmin() },
+  ];
+
   React.useEffect(() => {
-    function fetchTimecards() {
-      ApiService.getTimecards().then(timecards => {
-        formatDateFromMsForAllTimecards(timecards);
+    async function fetchAndProcessTimecards() {
+      const timecards = await ApiService.getTimecards();
+      formatDateFromMsForAllTimecards(timecards);
+      if (!isUserAdmin()) {
         setTimecards(filteredTimecards(timecards, startDate, endDate));
-      });
+      } else {
+        const users = await ApiService.getUsers();
+        const tcWithOwnerNames = mapTimecardOwners(timecards, users);
+        setTimecards(filteredTimecards(tcWithOwnerNames, startDate, endDate));
+      }
     }
-    fetchTimecards();
+
+    fetchAndProcessTimecards();
   }, []);
 
   const dailyDurationChange = e => {
@@ -70,8 +83,8 @@ export const Timecard = () => {
         const { task, duration, date, notes } = newData;
         // quick solution to overcome date formatting which can't be done through the 3rd party lib. basically we have 3 date formats
         newData.rawDate = getTime(new Date(date)).toString();
-        newData.date = formatDateForOneTimecard(newData.rawDate);
-        sendTimecardToServer(task, duration, newData.rawDate, notes)
+        newData.date = formatDateForOneEntity(newData.rawDate);
+        sendTimecardToServer(task, duration.toString(), newData.rawDate, notes)
           .then(res => {
             resolve();
             setTimecards(prevState => {
@@ -93,8 +106,8 @@ export const Timecard = () => {
         const { task, duration, date, notes, _id } = newData;
         // quick solution to overcome date formatting which can't be done through the 3rd party lib. basically we have 3 date formats
         newData.rawDate = getTime(new Date(date)).toString();
-        newData.date = formatDateForOneTimecard(newData.rawDate);
-        updateTimecardOnServer(task, duration, newData.rawDate, notes, _id)
+        newData.date = formatDateForOneEntity(newData.rawDate);
+        updateTimecardOnServer(task, duration.toString(), newData.rawDate, notes, _id)
           .then(res => {
             if (oldData) {
               resolve();
@@ -113,7 +126,6 @@ export const Timecard = () => {
   const onRowDelete = oldData => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        console.log("wtff", oldData);
         deleteTimecardOnServer(oldData._id)
           .then(res => {
             resolve();
@@ -129,8 +141,9 @@ export const Timecard = () => {
   };
 
   const filteredTimecards = (timecards, start, end) => {
+    if (!timecards) return [];
     return timecards.filter(timecard => {
-      return timecard.rawDate > start && timecard.rawDate < end;
+      return timecard.rawDate >= start && timecard.rawDate <= end;
     });
   };
 
@@ -185,7 +198,7 @@ export const Timecard = () => {
       <MuiPickersUtilsProvider utils={DateFnsUtils}>
         {getTopFilters()}
         <MaterialTable
-          columns={COLUMNS}
+          columns={tableColumns}
           data={timecards}
           title="Entries"
           options={{
@@ -195,7 +208,9 @@ export const Timecard = () => {
             }),
             exportButton: true,
           }}
-          onRowClick={(e, row) => console.log(e, row)}
+          localization={{
+            body: { editRow: { deleteText: "Are you sure you want to remove this timecard?" } },
+          }}
           editable={{
             onRowAdd: newData => onRowAdd(newData),
             onRowUpdate: (newData, oldData) => onRowUpdate(newData, oldData),
