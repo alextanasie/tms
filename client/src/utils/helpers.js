@@ -53,10 +53,15 @@ const formatDateForOneEntity = dt => {
   return format(new Date(+dt), "dd LLLL yyyy");
 };
 
+//TODO test this with undefined user
 const mapTimecardOwners = (timecards, users) => {
   const tcWithOwnerNames = timecards.map(t => {
     let user = users.find(u => u._id === t.ownerId);
-    t.owner = user.email;
+    if (!user) {
+      t.owner = "(user deleted)";
+    } else {
+      t.owner = user.email;
+    }
     return t;
   });
   return tcWithOwnerNames;
