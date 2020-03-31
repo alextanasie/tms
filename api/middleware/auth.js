@@ -6,7 +6,7 @@ const { loginValidation } = require("../helpers/userValidation");
 let refreshTokens = [];
 
 const generateAccessToken = userInfo => {
-  return jwt.sign(userInfo, process.env.TOKEN_SECRET, { expiresIn: "30s" });
+  return jwt.sign(userInfo, process.env.TOKEN_SECRET, { expiresIn: "600s" });
 };
 
 const getUserInfoForTokens = user => {
@@ -43,8 +43,6 @@ const login = async (req, res) => {
   const refreshToken = jwt.sign(userInfo, process.env.REFRESH_TOKEN_SECRET);
   refreshTokens.push(refreshToken);
   res.json({ accessToken, refreshToken });
-
-  //TODO: add expiration
 };
 
 const isAuthenticated = (req, res, next) => {
