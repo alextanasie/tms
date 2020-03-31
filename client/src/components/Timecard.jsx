@@ -45,20 +45,19 @@ export const Timecard = () => {
     { title: "Owner", field: "owner", hidden: !isUserAdmin() },
   ];
 
-  React.useEffect(() => {
-    async function fetchAndProcessTimecards() {
-      const timecards = await ApiService.getTimecards();
-      formatDateFromMsForAllTimecards(timecards);
-      if (!isUserAdmin()) {
-        setTimecards(filteredTimecards(timecards, startDate, endDate));
-      } else {
-        const users = await ApiService.getUsers();
-        const tcWithOwnerNames = mapTimecardOwners(timecards, users);
-        setTimecards(filteredTimecards(tcWithOwnerNames, startDate, endDate));
-      }
+  async function fetchAndProcessTimecards(startDate, endDate) {
+    const timecards = await ApiService.getTimecards();
+    formatDateFromMsForAllTimecards(timecards);
+    if (!isUserAdmin()) {
+      setTimecards(filteredTimecards(timecards, startDate, endDate));
+    } else {
+      const users = await ApiService.getUsers();
+      const tcWithOwnerNames = mapTimecardOwners(timecards, users);
+      setTimecards(filteredTimecards(tcWithOwnerNames, startDate, endDate));
     }
-
-    fetchAndProcessTimecards();
+  }
+  React.useEffect(() => {
+    fetchAndProcessTimecards(startDate, endDate);
   }, []);
 
   const dailyDurationChange = e => {
@@ -82,9 +81,9 @@ export const Timecard = () => {
       setTimeout(() => {
         const { task, duration, date, notes } = newData;
         // quick solution to overcome date formatting which can't be done through the 3rd party lib. basically we have 3 date formats
-        newData.rawDate = getTime(new Date(date)).toString();
+        newData.rawDate = getTime(new Date(date));
         newData.date = formatDateForOneEntity(newData.rawDate);
-        sendTimecardToServer(task, duration.toString(), newData.rawDate, notes)
+        sendTimecardToServer(task, duration.toString(), newData.rawDate.toString(), notes)
           .then(res => {
             resolve();
             setTimecards(prevState => {
@@ -105,9 +104,9 @@ export const Timecard = () => {
       setTimeout(() => {
         const { task, duration, date, notes, _id } = newData;
         // quick solution to overcome date formatting which can't be done through the 3rd party lib. basically we have 3 date formats
-        newData.rawDate = getTime(new Date(date)).toString();
+        newData.rawDate = getTime(new Date(date));
         newData.date = formatDateForOneEntity(newData.rawDate);
-        updateTimecardOnServer(task, duration.toString(), newData.rawDate, notes, _id)
+        updateTimecardOnServer(task, duration.toString(), newData.rawDate.toString(), notes, _id)
           .then(res => {
             if (oldData) {
               resolve();
@@ -147,10 +146,8 @@ export const Timecard = () => {
     });
   };
 
-  const filterTimecardsByDate = (start, end) => {
-    const allTimecards = ApiService.getStoredTimecards();
-
-    setTimecards(prevState => filteredTimecards(allTimecards, start, end));
+  const filterTimecardsByDate = async (start, end) => {
+    fetchAndProcessTimecards(start, end);
   };
 
   const handleStartDateChange = e => {
@@ -172,7 +169,7 @@ export const Timecard = () => {
           <DatePicker fullWidth value={startDate} onChange={handleStartDateChange} disableFuture={true} label="From" />
         </Grid>
         <Grid item xs={4}>
-          <DatePicker fullWidth value={endDate} onChange={handleEndDateChange} disableFuture={true} label="To" />
+          <DatePicker fullWidth value={endDate} onChange={handleEndDateChange} label="To" />
         </Grid>
         <Grid item xs={4}>
           <TextField

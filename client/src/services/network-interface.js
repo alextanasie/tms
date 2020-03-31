@@ -24,6 +24,7 @@ class NetworkInterface {
   getTimecards = async (path, tries = 2) => {
     try {
       const res = await axios.get(path, this.getConfig());
+      this.setUserRole();
       return res.data;
     } catch (err) {
       if (errCausedByExp(err, this.accessToken, tries)) {
@@ -148,18 +149,22 @@ class NetworkInterface {
   };
 
   setUserInfo = data => {
+    this.userRole = getUserRoleFromToken(data.accessToken);
     this.setAccessToken(data.accessToken);
     localStorage.setItem("accessToken", data.accessToken);
     if (data.refreshToken) {
       this.setRefreshToken(data.refreshToken);
       localStorage.setItem("refreshToken", data.refreshToken);
     }
-    this.userRole = getUserRoleFromToken(data.accessToken);
     localStorage.setItem("userRole", this.userRole);
   };
 
   getUserRole = () => {
     return this.userRole || localStorage.getItem("userRole");
+  };
+
+  setUserRole = () => {
+    return (this.userRole = getUserRoleFromToken(this.accessToken));
   };
 
   unsetUserInfo = () => {
@@ -199,7 +204,7 @@ const handleErr = err => {
 };
 
 const errCausedByExp = (err, token, tries) => {
-  if (err.response.status === 403 && isTokenExpired(token) && tries > 1) {
+  if (err.response && err.response.status === 403 && isTokenExpired(token) && tries > 1) {
     return true;
   }
   return false;
