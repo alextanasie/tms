@@ -97,6 +97,7 @@ export const Login = ({ history, location, match }) => {
                 name="email"
                 autoComplete="email"
                 autoFocus
+                error={loginErr}
                 onChange={onEmailChange}
               />
             </FormControl>
@@ -113,9 +114,9 @@ export const Login = ({ history, location, match }) => {
                 autoComplete="current-password"
                 value={pass}
                 onChange={onPassChange}
+                error={loginErr}
               />
             </FormControl>
-            {/* <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Remember me" /> */}
             <Button
               type="submit"
               fullWidth
