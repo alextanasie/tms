@@ -124,7 +124,7 @@ export const ManageUsers = () => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         const { name, email } = newData;
-        newData.role = 1;
+        newData.role = newData.role || 1;
         newData.date = formatDateForOneEntity(getTime(new Date()).toString());
         sendUserToServer(name, email)
           .then(res => {
