@@ -14,7 +14,8 @@ const useStyles = makeStyles(theme => ({
     height: "100vh",
   },
   image: {
-    backgroundImage: "url(https://source.unsplash.com/collection/158528)",
+    backgroundImage:
+      "url(https://images.unsplash.com/photo-1506784365847-bbad939e9335?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2248&q=80)",
     backgroundRepeat: "no-repeat",
     backgroundColor: theme.palette.type === "light" ? theme.palette.grey[50] : theme.palette.grey[900],
     backgroundSize: "cover",
@@ -38,8 +39,6 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing(3, 0, 2),
   },
 }));
-
-// interface Props extends RouteComponentProps {}
 
 export const Login = ({ history, location, match }) => {
   const classes = useStyles();
