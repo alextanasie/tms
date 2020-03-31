@@ -22,6 +22,13 @@ export default function App() {
             <ManageUsers />
           </PrivateRoute>
           <Route path="/logout" render={() => <div>logout</div>} />
+          <PrivateRoute exact path="/">
+            {isUserAuthenticated() && !isUserAllowed("/timecard") ? (
+              <Redirect to="/timecard" />
+            ) : (
+              <Redirect to="/login" />
+            )}
+          </PrivateRoute>
           <Route path="/" render={() => <div>404</div>} />
         </Switch>
       </div>
@@ -30,14 +37,15 @@ export default function App() {
 }
 
 const PrivateRoute = ({ children, ...rest }) => {
-  const redirectTo = pathname => (
-    <Redirect
-      to={{
-        pathname,
-        // state: { from: location },
-      }}
-    />
-  );
+  const redirectTo = pathname => {
+    return (
+      <Redirect
+        to={{
+          pathname,
+        }}
+      />
+    );
+  };
 
   return (
     <Route

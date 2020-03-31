@@ -11,16 +11,9 @@ const handleUiError = (err, reject) => {
   return reject(err.response.data);
 };
 
-const isUserAuthenticated = async () => {
+const isUserAuthenticated = () => {
   const accessToken = networkInterface.getAccessToken();
-  if (!accessToken) {
-    return false;
-  }
-
-  // it would be best to check for expiration here as well
-  // Although the user doesn't get data access if token expired, the user shouldn't see the UI
-
-  return true;
+  return accessToken;
 };
 
 const getRole = () => {
