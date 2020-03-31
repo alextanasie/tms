@@ -10,7 +10,6 @@ const isTokenExpired = token => {
 
 const getUserRoleFromToken = token => {
   const { role } = decode(token);
-  console.log("wh", role);
   return role;
 };
 

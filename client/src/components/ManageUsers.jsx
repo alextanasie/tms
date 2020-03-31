@@ -145,7 +145,6 @@ export const ManageUsers = () => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         const { name, email, _id, role } = newData;
-        // console
         updateUserOnServer({ name, email, role }, _id)
           .then(res => {
             resolve();

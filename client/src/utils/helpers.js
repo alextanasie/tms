@@ -27,7 +27,6 @@ const isUserAllowed = path => {
 };
 
 const isUserAdmin = () => {
-  console.log("is", getRole());
   return getRole().toString() === "3";
 };
 
