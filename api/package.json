@@ -1,5 +1,5 @@
 {
-  "name": "tms-api",
+  "name": "api",
   "version": "1.0.0",
   "description": "The API for the TMS client app",
   "main": "index.js",

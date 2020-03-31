@@ -72,7 +72,8 @@ const getToken = async (req, res) => {
   try {
     const refreshToken = req.body.refreshToken;
     if (refreshToken == null) return res.sendStatus(401);
-    if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403);
+    // TODO: uncomment the line below after finishing development (nodemeon causes the refreshTokens to be always empty)
+    // if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403);
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
       if (err) {
         return res.sendStatus(403);

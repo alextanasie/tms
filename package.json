@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "workspaces": [
+    "api",
+    "client"
+  ],
+  "scripts": {
+    "start:ui": "yarn workspace client run start",
+    "start:api": "yarn workspace api run start",
+    "start": "(yarn start:ui) & (yarn start:api)"
+  },
+  "devDependencies": {
+    "cypress": "^4.3.0"
+  }
+}

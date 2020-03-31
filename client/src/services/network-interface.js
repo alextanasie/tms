@@ -7,7 +7,7 @@ import constants from "../constants";
 class NetworkInterface {
   accessToken = localStorage.getItem("accessToken") || "";
   refreshToken = localStorage.getItem("refreshToken") || "";
-  userRole = localStorage.getItem("userRole") || 1;
+  userRole = localStorage.getItem("userRole") || "";
 
   login = async (path, credentials) => {
     try {
