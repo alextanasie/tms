@@ -29,6 +29,12 @@ Any questions or problems should arise, please get in touch.
 
 The API is restful and uses JWT for authentication.
 
+## Testing
+
+E2E testing can be done with cypress and unit testing can be ran inside `/api` with `yarn test`, using Jest.
+
+There are only a few tests written, but the setup should be fine and ready to accept new tests.
+
 ## Future plans (or TODOs)
 
 Some TODO notes can already be found in code, but this is how the app can improve if more time could be allocated:

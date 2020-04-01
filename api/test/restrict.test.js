@@ -1,4 +1,4 @@
-const { restrictUsers, restrictManagers, restrictManagersAndUsers } = require("../middleware/restrict");
+// const { restrictUsers, restrictManagers, restrictManagersAndUsers } = require("../middleware/restrict");
 
 describe("Restrict functions", function() {
   it("", () => {
