@@ -33,6 +33,13 @@ const login = async (req, res) => {
     return res.status(401).send("Email or password are not correct");
   }
 
+  //TODO users are by default created with "confirmed" flag set to true for bypassing email confirmation
+  //Confirmation will be re-added as soon as a mail server is up (to not use nodemon test email provider)
+  // if (!user.confirmed) {
+  //   console.error("login: email not confirmed");
+  //   return res.status(401).send("Email not confirmed");
+  // }
+
   //check password
   const validPass = await bcrypt.compare(req.body.password, user.password);
   if (!validPass) return res.status(401).send("Email or password are not correct");
@@ -86,6 +93,30 @@ const getToken = async (req, res) => {
   }
 };
 
+const confirmEmail = async (req, res) => {
+  try {
+    const {
+      user: { id },
+    } = jwt.verify(req.params.token, process.env.EMAIL_SECRET);
+
+    //check if user exists
+    let user = await User.findOne({ _id: id });
+    if (!user) {
+      console.error("email confirmation: user does not exist");
+      return res
+        .status(404)
+        .send(`User id ${req.params.id} could no longer be found. Perhaps the confirmation link expired`);
+    }
+
+    user.confirmed = true;
+    await user.save();
+  } catch (e) {
+    res.send("error");
+  }
+
+  return res.redirect("http://localhost:3000/login");
+};
+
 const deleteToken = (req, res) => {
   refreshTokens = refreshTokens.filter(tk => tk !== req.body.refreshToken);
   res.sendStatus(204);
@@ -96,4 +127,5 @@ module.exports = {
   isAuthenticated,
   getToken,
   deleteToken,
+  confirmEmail,
 };

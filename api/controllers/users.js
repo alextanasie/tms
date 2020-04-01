@@ -1,7 +1,58 @@
 const User = require("../model/User");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 const { isAdminRequest } = require("../helpers/user-helpers");
 const { registerValidation, userInfoValidation } = require("../helpers/userValidation");
+
+const sendConfirmationEmail = async user => {
+  let testAccount = await nodemailer.createTestAccount();
+
+  let transporter = nodemailer.createTransport({
+    name: "example.com", // <= Add this
+    host: "smtp.ethereal.email",
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: testAccount.user, // generated ethereal user
+      pass: testAccount.pass, // generated ethereal password
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+
+  jwt.sign(
+    {
+      user: user._id,
+    },
+    process.env.EMAIL_SECRET,
+    {
+      expiresIn: "3600s",
+    },
+    (err, emailToken) => {
+      if (err) {
+        console.error(err);
+        throw err;
+      }
+      const url = `http://localhost:3000/confirmation/${emailToken}`;
+
+      const msg = {
+        to: user.email,
+        from: '"Fred Foo" <foo@example.com>',
+        subject: "Confirm Email",
+        text: "Hello world?", // plain text body
+        html: `Please click this email to confirm your email: <a href="${url}">${url}</a>`,
+      };
+      transporter.sendMail(msg, (err, info) => {
+        if (err) {
+          console.error(err.message);
+        }
+        console.log("email message sent: ", info.messageId);
+      });
+    }
+  );
+};
 
 const register = async (req, res) => {
   console.log("POST /users");
@@ -39,8 +90,9 @@ const register = async (req, res) => {
 
   try {
     const savedUser = await user.save();
-    res.status(201).send({ name: user.name, email: user.email, date: user.date, role: user.role });
+    // await sendConfirmationEmail(savedUser);
     console.log(`Saved user ${savedUser}`);
+    res.status(201).send({ name: user.name, email: user.email, date: user.date, role: user.role });
   } catch (err) {
     res.status(400).send(err);
     console.error(`registration error: ${err}`);
