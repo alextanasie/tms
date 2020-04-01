@@ -15,7 +15,7 @@ There are 3 user types and accounts have already been created for them (see user
 1. **User Manager** - _m@m.com_ / _password1_
 1. **Admin** - _a@a.com_ / _password1_
 
-These were created for demo purposes, so after playing around, feel free to go to `/register` and create your own user. You may use any email address, as no confirmation is needed. The DB will also be destroyed after the interview.
+These were created for demo purposes, so after playing around, feel free to go to `/register` and create your own user. You may use any email address, as no confirmation is needed (the confirmation mechanism has been currently disabled for testing purposes, as can be seen in the API code). The DB will also be destroyed after the interview.
 
 This would be an example flow: you can create a simple user, create a few timecards, then use the above manager/admin account to promote the user you created and go through each level.
 
